@@ -1,5 +1,5 @@
 const DEVELOP_BASE_URL = 'http://localhost:3000/api/'
-//Shanna@melissa.tv
+
 
 $('.login_form').submit(async(e)=>{
   e.preventDefault()
@@ -22,9 +22,9 @@ async function getToken(email, password){
     })
     const { token } = await response.json()
     localStorage.setItem('jwt-token',token)
-    return token;
+    return token
   } catch(err){
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -40,8 +40,8 @@ $('#situacionChile').on('click', async function(){
   $('#containerGrafico').hide()
   $('#js-table-posts').hide()
   $('#containerTabla').hide()
+  $('#situacionChile').hide()
 })
-
 
 async function getChile(token){
   try{
@@ -71,13 +71,11 @@ async function getChile(token){
   }
     return (data_total)
   } catch(err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
 function crearGraficoChile(data_total) {
-  console.log(data_total)
-
   var dataConfirmados = data_total.confirmed_data.data.map(function (info){
       return{ label: info.date, y: info.total}
   })
@@ -131,10 +129,7 @@ function crearGraficoChile(data_total) {
           yValueFormatString: "#,##0.# Personas",
           dataPoints: dataRecuperados
       }]
-  });
-
-  $("#containerGraficoChile").attr("style", "margin-top:35%;"); 
-
+  })
   chart.render();
 }
 
@@ -150,7 +145,7 @@ async function getResource(resource, token){
 
     return (data)
   } catch(err) {
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -168,15 +163,15 @@ function llenarTabla(total, tabla){
       <td>
         <button meta-id="${indice}" meta-country="${dato.location}" class="modelo">Ver detalles</button>
       </td>
-    </tr>`;
-  });
-  $(`#${tabla} tbody`).append(tableContent);
+    </tr>`
+  })
+  $(`#${tabla} tbody`).append(tableContent)
+  
 }
 
 function crearGraficoPrincipal(data) {
   data = data.filter(function (elemento) {return elemento.active >= 10000})
   data.sort(((a, b) => b.active - a.active))
-
   var dataActivos = data.map(function (info){
           return{ label: info.location, y: info.active}
   })
@@ -240,61 +235,59 @@ function crearGraficoPrincipal(data) {
           dataPoints: dataRecuperados
       }]
   });
-
-  $("#containerGrafico").attr("style", "margin-top:35%;"); 
-
   chart.render();
 }
 
-  const table = document.querySelector('table#js-table-posts')
-  table.addEventListener('click', function mostrarDetalle(e){
-    e.preventDefault()
-    console.log(mostrarDetalle)
-  const countryTarget = e.target.dataset.dato 
+$('#js-table-posts').on('click', (e)=>{
+  e.preventDefault()
+  
+  const token2 = localStorage.getItem('jwt-token');
+  const total = getChile(token2, "containerGraficoChile")
+  const countryTarget = e.target.dataset.country
+  console.log(countryTarget)
   if(countryTarget){
     const dataCountry = total.find(dato => dato.location === countryTarget)
-    showModal(dataCountry)
-  }
-  function showModal(dato){
-    const modalTitle = document.querySelector('.modal-title')
-    modalTitle.innerText = dato.location
-    fillChart(dato, 'modalChart')
-    $('.modal').modal('show')
-  }
-  
-  function fillChart(data, canvas){
-    const ctx = document.getElementById(canvas).getContext('2d');
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: ['Confirmados', 'Fallecidos', 'Recuperados', 'Activos'],
-        datasets: [{
-            label: '# of Votes',
-            data: [data.confirmed, data.deaths, data.recovered, data.active],
-            backgroundColor: [
-                'rgba(255, 99, 132, 0.2)',
-                'rgba(54, 162, 235, 0.2)',
-                'rgba(255, 206, 86, 0.2)',
-                'rgba(75, 192, 192, 0.2)'
-            ],
-            borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)'
-            ],
-            borderWidth: 1
-        }]
-    },
-    options: {
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true
-                }
-            }]
-         }
-      }
-    });
-  }
-  })
+    showModal(dataCountry)  
+}
+
+function showModal(dato){
+  $('#.modal-title').text() = dato.location
+  fillChart(dato, 'modalChart')
+  $('.modal').modal('show')
+}
+
+function fillChart(data, canvas){
+  const ctx = document.getElementById(canvas).getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Confirmados', 'Fallecidos', 'Recuperados', 'Activos'],
+      datasets: [{
+          data: [data.confirmed, data.deaths, data.recovered, data.active],
+          backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)'
+          ],
+          borderColor: [
+              'rgba(255, 99, 132, 1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)'
+          ],
+          borderWidth: 1
+      }]
+  },
+  options: {
+      scales: {
+          yAxes: [{
+              ticks: {
+                  beginAtZero: true
+              }
+          }]
+        }
+    }
+  });
+}
+})
